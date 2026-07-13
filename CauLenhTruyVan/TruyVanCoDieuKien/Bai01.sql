@@ -46,26 +46,12 @@ VALUES
 (10,'Lý Thị K',20,'Nữ','Đà Nẵng',6.5);
 /*Lưu ý thêm dữ liệu muốn lưu được tiếng việt phải thêm chữ N trước nháy đơn*/ 
 
-/*1. Truy vấn sinh viên có tuổi bằng 20*/
-SELECT * FROM Students
-WHERE Age = 20;
+/*1. Truy vấn dữ liệu thành phố không trùng*/
+SELECT DISTINCT city FROM Students;
 
-/*2. Truy vấn sinh viên có điểm lớn hơn 8*/
-SELECT * FROM Students
-WHERE Score > 8;
+/*2. Truy vấn dữ liệu các điểm không trùng*/
+SELECT DISTINCT Score FROM Students;
 
-/*3. Truy vấn sinh viên có điểm nhỏ hơn 6*/
-SELECT * FROM Students
-WHERE Score < 6;
-
-/*4. Truy vấn sinh viên có giới tính nam*/
-SELECT * FROM Students
-WHERE Gender = 'Nam';
-
-/*5. Truy vấn sinh viên có giới tính nữ*/
-SELECT * FROM Students
-WHERE Gender = N'Nữ';
-
-/*6. Truy vấn dữ liệu sinh viên sống ở Hà Nội*/
-SELECT * FROM Students
-WHERE City = N'Hà Nội';
+/*3. Truy vấn dữ liệu city và gender không trùng*/
+SELECT DISTINCT City, Gender FROM Students;
+/*Lưu ý nếu truy vấn theo trùng lặp từ 2 cột trở lên nó sẽ áp dụng và vừa không trùng cột này và không trùng cột kia*/
