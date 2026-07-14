@@ -67,6 +67,56 @@ VALUES
 (106,'2026-06-01', 450000,NULL),
 (107,'2026-06-10', 300000,NULL);
 
+/*1. Hiển thị toàn bộ khách hàng và đơn hàng bằng full join*/
+SELECT Customers.CustomerId, FullName, City, OrderDate, TotalMoney FROM Customers
+FULL JOIN Orders
+ON Customers.CustomerId = Orders.CustomerId;
 
+/*2. Hiển thị fullName và OrderId bằng full join*/
+SELECT FullName, OrderId FROM Customers
+FULL JOIN Orders
+ON Customers.CustomerId = Orders.CustomerId;
+
+/*3. Hiển thị đơn hàng của khách hàng ở Hà Nội*/
+SELECT OrderId,OrderDate,TotalMoney, City FROM Customers
+FULL JOIN Orders
+ON Customers.CustomerId = Orders.CustomerId
+WHERE City = N'Hà Nội';
+
+/*4. Hiển thị đơn hàng của khách hàng có tên chứa chữ Nguyễn*/
+SELECT OrderId,OrderDate,TotalMoney, FullName FROM Customers
+FULL JOIN Orders
+ON Customers.CustomerId = Orders.CustomerId
+WHERE FullName LIKE N'%Nguyễn%';
+
+/*5. Hiển thị khách hàng có đơn hàng sau ngày 2026-05-01.*/
+SELECT Customers.CustomerId, FullName, City, OrderDate FROM Customers
+FULL JOIN Orders
+ON Customers.CustomerId = Orders.CustomerId
+WHERE OrderDate < '2026-05-01';
+
+/*6. Hiển thị những khách hàng chưa có đơn hàng*/
+SELECT Customers.CustomerId, FullName, City, OrderId FROM Customers
+FULL JOIN Orders
+ON Customers.CustomerId = Orders.CustomerId
+WHERE OrderId IS NULL;
+
+/*7. Hiển thị những đơn hàng đang không có khách hàng*/
+SELECT OrderId,OrderDate,TotalMoney, FullName, Customers.CustomerId FROM Customers
+FULL JOIN Orders
+ON Customers.CustomerId = Orders.CustomerId
+WHERE Customers.CustomerId IS NULL;
+
+/*Hiển thị những dòng dữ liệu không khớp giữa hai bảng*/
+SELECT OrderId, OrderDate,TotalMoney, FullName, Customers.CustomerId FROM Customers
+FULL JOIN Orders
+ON Customers.CustomerId = Orders.CustomerId
+WHERE Customers.CustomerId IS NULL OR Orders.OrderId IS NULL;
+
+/*Đếm có bao nhiêu khách hàng chưa có đơn hàng*/
+SELECT COUNT(FullName) AS[Khách hàng chưa có đặt đơn] FROM Customers
+FULL JOIN Orders
+ON Customers.CustomerId = Orders.CustomerId
+WHERE OrderId IS NULL;
 
 
