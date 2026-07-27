@@ -221,16 +221,14 @@ Nhưng vấn đề "bùng nổ" dư thừa dữ liệu lại xuất hiện:
 
 Để đưa về 4NF và loại bỏ hiện tượng bùng nổ dòng trùng lặp, ta tách 2 thuộc tính độc lập đa trị ra 2 bảng riêng biệt:
 
-Bảng 1: LecturerSubject 
-
+Bảng 1: LecturerSubject <br/>
 **Khóa chính:** (Lecturer, Subject)
 |Lecturer|Subject|
 |---|---|
 |Thầy Nam|C#|
 |Thầy Nam|Java|
 
-Bảng 2: LecturerLanguage
-
+Bảng 2: LecturerLanguage <br/>
 **Khóa chính:** (Lecturer, Language)
 
 |Lecturer|Language|
@@ -241,20 +239,43 @@ Bảng 2: LecturerLanguage
 KẾT QUẢ: Thay vì tốn 4 dòng (hoặc 9 dòng khi mở rộng), ta chỉ tốn $2 + 2 = 4$ dòng (hoặc $3 + 3 = 6$ dòng ở 2 bảng). Dữ liệu hoàn toàn sạch sẽ và dễ nâng cấp.
 
 ### 6. Dạng chuẩn hóa 5NF
-
 Một bảng đạt chuẩn 5NF khi:
 + Đã đạt chuẩn 4NF.
 + Không còn Phụ thuộc Tách-Nối phi lý (Non-trivial Join Dependency).
 
-Nói một cách đơn giản:
+Nói một cách đơn giản:<br/>
+Khi tách một bảng lớn thành 3 (hoặc nhiều hơn) bảng nhỏ, nếu bạn gom 3 bảng nhỏ đó lại bằng phép JOIN mà thu được đúng chính xác dữ liệu ban đầu (không bị phát sinh dữ liệu "rác/bóng ma" - spurious rows), thì bảng ban đầu đã vi phạm 5NF và bắt buộc phải tách ra làm 3 bảng riêng biệt đó.
 
-Khi bạn tách một bảng lớn thành 3 (hoặc nhiều hơn) bảng nhỏ, nếu bạn gom 3 bảng nhỏ đó lại bằng phép JOIN mà thu được đúng chính xác dữ liệu ban đầu (không bị phát sinh dữ liệu "rác/bóng ma" - spurious rows), thì bảng ban đầu đã vi phạm 5NF và bắt buộc phải tách ra làm 3 bảng riêng biệt đó.
+Ví dụ: <br/>
+Xét mối quan hệ 3 bên giữa Công ty, Nhà cung cấp, và Sản phẩm.<br/>
+Bảng ban đầu Supply (Đã đạt 4NF)
+|Provider|Company|Product|
+|---|---|---|
+|Công ty A|VinFast|Lốp xe|
+|Công ty B|VinFast|Lốp xe|
+|Công ty A|VinFast|Tắc-kê|
+|Công ty A|Thaco|Lốp xe|
 
-Ví dụ: 
+Quy tắc thực tế của doanh nghiệp:
++ Công ty A cung cấp Lốp xe và Tắc-kê.
++ VinFast mua Lốp xe và Tắc-kê.
++ **Đặc biệt:** Nếu Công ty A có bán Lốp xe, VÀ VinFast có mua Lốp xe, VÀ Công ty A là đối tác của VinFast $\rightarrow$ Thì mặc nhiên Công ty A sẽ bán Lốp xe cho VinFast.
 
-Xét mối quan hệ 3 bên giữa Công ty, Nhà cung cấp, và Sản phẩm.
+Chính vì ràng buộc 3 bên này, nếu lưu chung 1 bảng thì khi thêm một đối tác mới, bạn bắt buộc phải thêm rất nhiều dòng tổ hợp trùng lặp.
 
+Tiến hành đưa về 5NF (Tách thành 3 bảng):<br/>
+Để đạt 5NF, ta tách bảng Supply thành 3 bảng lưu mối quan hệ cặp 2-2:
++ Bảng 1 Provider_Company: Nhà cung cấp nào bán cho Công ty nào.
++ Bảng 2 Company_Product: Công ty nào sử dụng Sản phẩm nào.
++ Bảng 3 Provider_Product: Nhà cung cấp nào sản xuất được Sản phẩm nào.
 
+Khi JOIN cả 3 bảng nhỏ này lại với nhau, ta phục hồi lại đúng 100% bảng Supply ban đầu mà không mất mát hay dư thừa dữ liệu.
 
+Khi nào cần dùng đến 5NF?
+Trong thực tế phát triển phần mềm, rất hiếm khi người ta chuẩn hóa tới 5NF. Bạn chỉ cần cân nhắc dùng 5NF khi:
++ Hệ thống có ràng buộc 3 bên phức tạp (Complex Triadic Relationships): Như ví dụ trên (Doctor - Patient - Drug, hoặc Student - Course - Teacher) nơi mà mối quan hệ giữa 3 thực thể bị khống chế bởi các quy tắc nghiệp vụ đan xen nhau.
++ Hệ thống Database cực kỳ khắt khe về toàn vẹn dữ liệu: Các hệ thống lõi Y tế, Quốc phòng, Ngân hàng — nơi việc xuất hiện dù chỉ 1 dòng dữ liệu giả/rác (spurious row) khi truy vấn cũng có thể gây hậu quả nghiêm trọng.
+
+**Thực tế:** Hầu hết các ứng dụng phần mềm doanh nghiệp chỉ chuẩn hóa dừng lại ở 3NF hoặc BCNF để cân bằng giữa tính toàn vẹn dữ liệu và hiệu năng truy vấn.
 
 
