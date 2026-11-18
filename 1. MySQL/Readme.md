@@ -14,7 +14,7 @@
 
 - Lưu ý:
     - Đối với tiền tệ, nên sử dụng DECIMAL thay vì FLOAT hoặc DOUBLE
-    - Lý do: FLOAT và DOUBLE biểu diễn số thực theo dạng dấu phẩy động, có thể gây sai số.
+    - Lý do: FLOAT cho phép chỉ thể hiện 6 - 7 chữ số (gồm cả phần trước và sau dấu thập phân) và DOUBLE cho phép lớn hơn là 15 - 16 chữ số, còn riêng với DECIMAL thì lên đến 65 chữ số.
 ## 2. String Data Types – Kiểu dữ liệu chuỗi
 
 |Kiểu|Mô tả|
