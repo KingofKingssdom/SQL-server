@@ -102,7 +102,7 @@ DROP COLUMN Phone;
 ```SQL
 TRUNCATE TABLE Users;
 // Hoặc 
-DELETE TABLE Users;
+DELETE FROM Users;
 // Hoặc
 DROP TABLE Users;
 ```
@@ -116,7 +116,7 @@ DROP TABLE Users;
 |Reset AUTO_INCREMENT|Không tự động|Có|Không còn bảng|
 |Có thể ROLLBACK|Có, với InnoDB trong transaction|Không trong MySQL|Không trong MySQL|
 
-- Lưu ý: TRUNCATE và DROP là DDL, có hành vi implicit commit trong MySQL. Không thể dùng ROLLBACK để hoàn tác chúng.
+- Lưu ý: TRUNCATE và DROP là DDL có hành vi implicit commit trong MySQL. Không thể dùng ROLLBACK để hoàn tác chúng.
 
 ## 2. DML – Data Manipulation Language
 - DML dùng để thao tác dữ liệu.
