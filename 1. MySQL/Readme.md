@@ -752,9 +752,375 @@ SELECT
 FROM Products;
 ```
 => CASE WHEN rất hữu ích trong các báo cáo và xử lý nghiệp vụ.
+# Phần X. INDEX - CHỈ MỤC TRONG MYSQL
+Đây là một trong những phần quan trọng nhất khi bạn muốn tối ưu hiệu năng database.
+## 1. Index là gì? 
+Đây là một trong những phần quan trọng nhất khi bạn muốn tối ưu hiệu năng database.
+
+Hãy tưởng tượng:
+- Không có Index: Bạn phải đọc từng trang sách để tìm một từ.
+- Có Index: Bạn xem mục lục rồi đi thẳng đến trang cần tìm.
+
+Tạo index qua câu lệnh sql
+```SQL
+CREATE INDEX idx_user_email
+ON Users(Email);
+```
+
+Khi truy vấn
+```SQL
+CREATE INDEX idx_user_email
+ON Users(Email);
+```
+
+MySQL có thể sử dụng Index để tìm kiếm nhanh hơn.
+
+## 2. Xóa Index
+```SQL
+DROP INDEX idx_user_email
+ON Users;
+```
+
+## 3. Các loại Index
+<b>Primary Index</b>: Index được tạo tự động bởi Primary Key.
+
+<b>Unique Index</b>: Đảm bảo giá trị không trùng lặp.
+
+```SQL
+CREATE UNIQUE INDEX idx_email
+ON Users(Email);
+```
+<b>Normal Index</b>: Index thông thường.
+
+```SQL
+CREATE INDEX idx_price
+ON Products(Price);
+```
+
+<b>Composite Index</b>: Index trên nhiều cột.
+
+```SQL
+CREATE INDEX idx_category_price
+ON Products(CategoryId, Price);
+```
+
+<b>Fulltext Index</b>: Hỗ trợ tìm kiếm văn bản toàn văn.
+
+```SQL
+CREATE FULLTEXT INDEX idx_product_name
+ON Products(Name);
+```
+
+## 4. Clustered Index và Secondary Index
+Trong InnoDB:
+- Primary Key được sử dụng làm Clustered Index.
+- Dữ liệu của bảng được tổ chức theo cấu trúc B+Tree của Clustered Index.
+- Secondary Index là các chỉ mục khác Primary Key.
+Một điểm rất quan trọng:
+
+Secondary Index của InnoDB chứa giá trị khóa chính để tham chiếu đến bản ghi tương ứng trong Clustered Index.
+
+Vì vậy Primary Key nên được thiết kế hợp lý, không quá lớn và ổn định.
+
+## 5. Composite Index và Leftmost Prefix
+
+```SQL
+CREATE INDEX idx_category_brand_price
+ON Products(CategoryId, BrandId, Price);
+```
+
+Index này có thể hỗ trợ tốt các truy vấn theo:
+- CategoryId.
+- CategoryId và BrandId.
+- CategoryId, BrandId và Price.
+Nhưng không nhất thiết hỗ trợ hiệu quả truy vấn chỉ lọc theo BrandId hoặc chỉ Price.
+
+Đây gọi là nguyên tắc Leftmost Prefix.
+
+## 6. Khi nào nên tạo Index?
+Nên cân nhắc Index cho:
+- Cột thường xuyên xuất hiện trong WHERE.
+- Cột thường xuyên JOIN.
+- Cột dùng để sắp xếp ORDER BY.
+- Cột dùng để nhóm GROUP BY.
+- Cột có tính phân biệt giá trị tốt.
+
+Không nên tạo Index tràn lan vì:
+- Tốn dung lượng lưu trữ.
+- Làm chậm INSERT.
+- Làm chậm UPDATE.
+- Làm chậm DELETE do phải cập nhật Index.
+
+## 7. EXPLAIN – Phân tích truy vấn
+Đây là công cụ quan trọng để kiểm tra MySQL thực hiện truy vấn như thế nào.
+
+```SQL
+EXPLAIN
+SELECT *
+FROM Products
+WHERE CategoryId = 1;
+```
+
+# PHẦN XI. ACID trong MYSQL
+
+## 1. Locking – Cơ chế khóa
+### Shared Lock
+Khóa chia sẻ, thường dùng để đọc dữ liệu có khóa.
+
+```SQL
+SELECT *
+FROM Products
+WHERE Id = 1
+FOR SHARE;
+```
+
+Nhiều transaction có thể cùng giữ Shared Lock.
+
+### Exclusive Lock
+Khóa độc quyền, thường dùng khi cập nhật dữ liệu.
+
+```SQL
+SELECT *
+FROM Products
+WHERE Id = 1
+FOR UPDATE;
+```
+
+Transaction khác không thể lấy khóa xung đột trên bản ghi đó cho đến khi khóa được giải phóng.
+
+### Deadlock
+Deadlock xảy ra khi hai hoặc nhiều transaction chờ khóa của nhau tạo thành vòng chờ.
+
+Ví dụ:
+- Transaction A khóa Product 1, chờ Product 2.
+- Transaction B khóa Product 2, chờ Product 1.
+MySQL InnoDB có cơ chế phát hiện Deadlock và thường chọn một transaction làm nạn nhân để rollback.
+
+Cách hạn chế:
+- Luôn cập nhật nhiều bản ghi theo cùng một thứ tự.
+- Giữ transaction ngắn.
+- Tạo Index phù hợp.
+- Không giữ khóa lâu hơn cần thiết.
+- Có cơ chế retry khi gặp lỗi Deadlock.
+
+# PHẦN XII. VIEW – BẢNG ẢO
+
+## 1. View là gì?
+View là một bảng ảo được xây dựng từ kết quả của câu SELECT.
+
+View thường không lưu dữ liệu kết quả riêng biệt như một bảng thông thường.
+
+```SQL
+CREATE VIEW ActiveUsers AS
+SELECT Id, FullName, Email
+FROM Users
+WHERE IsActive = TRUE;
+
+// Sử dụng 
+SELECT *
+FROM ActiveUsers;
+```
+
+## 2. Cập nhập View
+```SQL
+CREATE OR REPLACE VIEW ActiveUsers AS
+SELECT Id, FullName, Email
+FROM Users
+WHERE IsActive = TRUE;
+
+// Xóa view
+DROP VIEW ActiveUsers;
+```
+
+## Tại sao sử dụng View?
+- Đơn giản hóa truy vấn phức tạp.
+- Tái sử dụng câu truy vấn.
+- Hạn chế việc hiển thị các cột không cần thiết.
+- Hỗ trợ tổ chức quyền truy cập.
+
+Lưu ý: Không phải View nào cũng có thể UPDATE hoặc 
+INSERT. Khả năng cập nhật phụ thuộc cấu trúc View và câu truy vấn bên trong.
+
+# Phần XIII. STORED PROCEDURE
+## 1. Stored Procedure là gì?
+Stored Procedure là một nhóm câu lệnh SQL được lưu trong database và có thể gọi lại nhiều lần.
+
+Ví dụ:
+
+```SQL
+DELIMITER //
+
+CREATE PROCEDURE GetAllProducts()
+BEGIN
+    SELECT *
+    FROM Products;
+END //
+
+DELIMITER ;
 
 
+// Gọi Procedure:
+CALL GetAllProducts();
+```
+
+## 2. Procedure có tham số IN
+
+```SQL
+DELIMITER //
+
+CREATE PROCEDURE GetProductById(
+    IN productId INT
+)
+BEGIN
+    SELECT *
+    FROM Products
+    WHERE Id = productId;
+END //
+
+DELIMITER ;
 
 
+// Gọi:
+CALL GetProductById(1);
+```
+
+## 3. Procedure có tham số OUT
+
+```SQL
+DELIMITER //
+
+CREATE PROCEDURE CountProducts(
+    OUT total INT
+)
+BEGIN
+    SELECT COUNT(*)
+    INTO total
+    FROM Products;
+END //
+
+DELIMITER ;
 
 
+// Gọi:
+CALL CountProducts(@total);
+
+SELECT @total;
+```
+
+## 4. INOUT
+INOUT vừa nhận giá trị đầu vào vừa trả lại giá trị đầu ra.
+
+```SQL
+DELIMITER //
+
+CREATE PROCEDURE IncreaseValue(
+    INOUT numberValue INT
+)
+BEGIN
+    SET numberValue = numberValue + 10;
+END //
+
+DELIMITER ;
+
+
+// Gọi:
+SET @numberValue = 5;
+
+CALL IncreaseValue(@numberValue);
+
+SELECT @numberValue;
+```
+
+Kết quả: 15.
+
+# Phần XIV: FUNCTION – HÀM DO NGƯỜI DÙNG ĐỊNH NGHĨA
+
+## 1. Stored Function là gì?
+Stored Function là hàm được tạo trong database, có thể nhận tham số và bắt buộc trả về một giá trị thông qua RETURN.
+
+Ví dụ:
+
+```SQL
+DELIMITER //
+
+CREATE FUNCTION CalculateTotal(
+    price DECIMAL(15,2),
+    quantity INT
+)
+RETURNS DECIMAL(15,2)
+DETERMINISTIC
+BEGIN
+    RETURN price * quantity;
+END //
+
+DELIMITER ;
+
+
+// Sử dụng:
+SELECT CalculateTotal(100000, 2);
+```
+
+Kết quả: 200000.
+
+## 2. Phân biệt Stored Procedure và Function
+
+|Procedure|Function|
+|---|---|
+|Gọi bằng CALL|Có thể sử dụng trong biểu thức SQL|
+|Có thể trả nhiều kết quả thông qua OUT/result sets|Trả về một giá trị|
+|Không bắt buộc có RETURN|Bắt buộc có RETURN|
+|Phù hợp với quy trình nghiệp vụ|Phù hợp với tính toán, biểu thức|
+
+# PHẦN XV. TRIGGER
+
+## 1. Trigger là gì?
+Trigger là đoạn chương trình tự động thực thi khi một sự kiện xảy ra trên bảng.
+
+Các sự kiện:
+- INSERT.
+- UPDATE.
+- DELETE.
+Thời điểm:
+- BEFORE.
+- AFTER.
+Ví dụ tạo bảng lưu lịch sử thay đổi giá:
+```SQL
+CREATE TABLE ProductPriceHistory (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    ProductId INT,
+    OldPrice DECIMAL(15,2),
+    NewPrice DECIMAL(15,2),
+    ChangedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+Tạo Trigger:
+
+```SQL
+DELIMITER //
+
+CREATE TRIGGER trg_ProductPriceUpdate
+AFTER UPDATE ON Products
+FOR EACH ROW
+BEGIN
+    IF OLD.Price <> NEW.Price THEN
+        INSERT INTO ProductPriceHistory (
+            ProductId,
+            OldPrice,
+            NewPrice
+        )
+        VALUES (
+            OLD.Id,
+            OLD.Price,
+            NEW.Price
+        );
+    END IF;
+END //
+
+DELIMITER ;
+```
+
+Trong Trigger:
+- OLD: Giá trị trước khi thay đổi.
+- NEW: Giá trị sau khi thay đổi.
+Lưu ý: Trigger có thể khiến việc ghi dữ liệu khó theo dõi hơn nếu sử dụng quá nhiều. Nên dùng có chủ đích.
