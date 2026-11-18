@@ -223,6 +223,7 @@ CREATE TABLE Orders (
 ```
 ### ON DELETE và ON UPDATE
 - MySQL hỗ trợ các hành vi khi bản ghi cha bị xóa hoặc cập nhật.
+
 |Hành vi|Ý nghĩa|
 |---|---|
 |CASCADE|Tự động xóa/cập nhập bản ghi con|
