@@ -30,11 +30,11 @@
 |BLOB|Dữ liệu nhị phân|
 
 ### Phân biệt CHAR và VARCHAR
-|CHAR|VARCHAR|
-|---|---|
-|Độ dài cố định|Độ dài thay đổi|
-|Có thể phù hợp với dữ liệu độ dài ổn định|Phù hợp với chuỗi có độ dài khác nhau|
-|Ví dụ mã quốc gia|Ví dụ họ tên|
+|Đặc điểm|CHAR|VARCHAR|
+|---|---|---|
+|Loại lưu trữ|Độ dài cố định|Độ dài thay đổi|
+|Lưu trên ổ cứng|Luôn chiếm đúng n ký tự. Nếu bạn nhập ít hơn, MySQL tự động độn thêm khoảng trắng vào bên phải đủ n ký tự.|Chỉ chiếm đúng số ký tự bạn nhập + 1 hoặc 2 byte phụ để lưu độ dài thực tế của chuỗi.|
+|Kích thước tối đa|255 kí tự|65 535 kí tự|
 
 ## 3. Date and Time Data Types
 
